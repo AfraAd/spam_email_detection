@@ -9,9 +9,7 @@ output:
 
 This is my JSC370 Final Project website.
 
-## Collecting Starbucks Data
-
-```{r}
+```{r message=FALSE, warning=FALSE, include=FALSE}
 library(tidyverse)
 library(plotly)
 library(widgetframe)
@@ -19,7 +17,7 @@ library(tidytext)
 ```
 
 
-```{r message=FALSE, warning=FALSE}
+```{r message=FALSE, warning=FALSE, include=FALSE}
 ### load Starbucks and state-level data ###
 sb_locs <- read_csv("https://raw.githubusercontent.com/JSC370/JSC370-2025/refs/heads/main/data/starbucks/starbucks-locations.csv")
 
@@ -62,7 +60,7 @@ topwords <- sb_nutr |>
 
 ### Figure 1
 
-```{r echo=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 sb_nutr_long <- sb_nutr |>
   unnest_tokens(word, Item, token = "words") |>
   filter(word %in% topwords$word) |>
@@ -77,7 +75,7 @@ plot_ly(data = sb_nutr_long, x = ~word, y = ~Value, color = ~Nutrient, type = "b
 
 ### Figure 2
 
-```{r echo=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 sb_nutr |>
   unnest_tokens(word, Item, token="words") |>
   filter(word %in% topwords$word) |>
