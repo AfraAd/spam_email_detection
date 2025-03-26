@@ -9,18 +9,85 @@ output:
 
 This is my JSC370 Final Project website.
 
+## Collecting Starbucks Data
+
+```{r}
+library(tidyverse)
+library(plotly)
+library(widgetframe)
+library(tidytext)
+```
+
+
+```{r message=FALSE, warning=FALSE}
+### load Starbucks and state-level data ###
+sb_locs <- read_csv("https://raw.githubusercontent.com/JSC370/JSC370-2025/refs/heads/main/data/starbucks/starbucks-locations.csv")
+
+sb_nutr <- read_csv("https://raw.githubusercontent.com/JSC370/JSC370-2025/refs/heads/main/data/starbucks/starbucks-menu-nutrition.csv")
+
+usa_pop <- read_csv("https://raw.githubusercontent.com/JSC370/JSC370-2025/refs/heads/main/data/starbucks/us_state_pop.csv")
+
+usa_states<-read_csv("https://raw.githubusercontent.com/JSC370/JSC370-2025/refs/heads/main/data/starbucks/states.csv")
+
+### Merge data ###
+sb_usa <- sb_locs |> filter(Country=="US")
+
+sb_locs_state <- sb_usa |>
+  group_by(`State/Province`) |>
+  rename(state=`State/Province`) |>
+  summarize(n_stores=n())
+
+# need state abbreviations
+usa_pop_abbr <- 
+  full_join(usa_pop, usa_states, 
+            by = join_by(state == State)
+  ) 
+
+sb_locs_state <- full_join(sb_locs_state, usa_pop_abbr,
+                           by = join_by (state == Abbreviation))
+
+
+### Get topwords from menu items ###
+
+topwords <- sb_nutr |>
+  unnest_tokens(word, Item, token="words") |>
+  group_by(word) |>
+  summarise(word_frequency = n()) |>
+  arrange(across(word_frequency, desc)) |>
+  head(10)
+```
+
+
 ## Showcasing plots {.tabset}
 
 ### Figure 1
 
 ```{r echo=FALSE}
-p1_scatter
+sb_nutr_long <- sb_nutr |>
+  unnest_tokens(word, Item, token = "words") |>
+  filter(word %in% topwords$word) |>
+  pivot_longer(cols = c(Calories, `Fat (g)`, `Carb. (g)`, `Fiber (g)`, `Protein (g)`),
+                        names_to = "Nutrient", values_to = "Value")
+
+plot_ly(data = sb_nutr_long, x = ~word, y = ~Value, color = ~Nutrient, type = "box") |>
+  layout(title = "Nutrient Values for Top 10 Word Items", 
+         xaxis = list(title = "item_word"), yaxis = list(title = "Nutrient_value"),
+         hovermode = "compare")
 ```
 
 ### Figure 2
 
 ```{r echo=FALSE}
-p2_scatter
+sb_nutr |>
+  unnest_tokens(word, Item, token="words") |>
+  filter(word %in% topwords$word) |>
+  plot_ly(
+    x = ~Calories, y= ~`Carb. (g)`, type = "scatter", mode = "markers", color = ~Category,
+    hoverinfo = "text", text = ~paste0("Item: ", word)
+  ) |>
+  layout(title = "Cal vs Carbs", 
+         xaxis = list(title = "Calories"), yaxis = list(title = "Carbs"),
+         hovermode = "compare")
 ```
 
 {-}
