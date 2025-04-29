@@ -1,8 +1,3 @@
----
-title: "Spam Email Detection Project"
-output: html_document
----
-
 # 📬 InboxIntel Overview
 
 Spam emails can be both annoying and dangerous, often attempting to deceive individuals into revealing sensitive information or falling victim to fraud. With the increasing volume of spam circulating online, automated approaches for detecting these emails are critical for improving cybersecurity and user protection.
