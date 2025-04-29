@@ -1,91 +1,48 @@
 ---
-title: "JSC370 Final Project"
-author: "Your Name"
+title: "InboxIntel Home"
+author: "Afra Azad"
 output: 
     html_document:
         toc: TRUE
         toc_float: TRUE
+runtime: shiny
 ---
 
-This is my JSC370 Final Project website.
+# 📬 Introduction
 
-```{r message=FALSE, warning=FALSE, include=FALSE}
-library(tidyverse)
-library(plotly)
-library(widgetframe)
-library(tidytext)
-```
+Spam emails can be both annoying and dangerous, often attempting to fool individuals into revealing sensitive information or falling victim to fraud. With the increasing amount of spam emails circulating online, users need an automated approach to detecting such messages.
 
+For this research project, we aim to answer the following question: ***Can we develop a model to detect spam emails and determine which keywords most likely indicate spam content?***
 
-```{r message=FALSE, warning=FALSE, include=FALSE}
-### load Starbucks and state-level data ###
-sb_locs <- read_csv("https://raw.githubusercontent.com/JSC370/JSC370-2025/refs/heads/main/data/starbucks/starbucks-locations.csv")
+To explore this question, we use a dataset compiled from the CEAS, Nazario, Nigerian Fraud, and SpamAssassin corpora. In total, the dataset includes approximately 82,500 emails, with 42,891 labeled as spam and 39,595 labeled as non-spam. Each data point contains the body of the email, subject line, sender, receiver, date sent, embedded URL links, and a label indicating whether it is spam or not.
 
-sb_nutr <- read_csv("https://raw.githubusercontent.com/JSC370/JSC370-2025/refs/heads/main/data/starbucks/starbucks-menu-nutrition.csv")
+[Download the dataset](data/phishing_data.csv)
 
-usa_pop <- read_csv("https://raw.githubusercontent.com/JSC370/JSC370-2025/refs/heads/main/data/starbucks/us_state_pop.csv")
+## Final Report
 
-usa_states<-read_csv("https://raw.githubusercontent.com/JSC370/JSC370-2025/refs/heads/main/data/starbucks/states.csv")
+You can download the final project report below:
 
-### Merge data ###
-sb_usa <- sb_locs |> filter(Country=="US")
+[Download Final Report (PDF)](documents/final_report.pdf)
 
-sb_locs_state <- sb_usa |>
-  group_by(`State/Province`) |>
-  rename(state=`State/Province`) |>
-  summarize(n_stores=n())
+------------------------------------------------------------------------
 
-# need state abbreviations
-usa_pop_abbr <- 
-  full_join(usa_pop, usa_states, 
-            by = join_by(state == State)
-  ) 
+## 🧭 Project Workflow
 
-sb_locs_state <- full_join(sb_locs_state, usa_pop_abbr,
-                           by = join_by (state == Abbreviation))
+-   **EDA Tab** This section includes data cleaning and preprocessing, where we normalize and tokenize the text, and prepare the data for modeling. It also features initial summary statistics and data visualizations.
 
+-   **Visuals Tab** Here, we present interactive visualizations to explore patterns in word frequency, TF-IDF scores, bi-grams, timestamps, and vocabulary diversity. These help us understand the linguistic differences between spam and non-spam messages.
 
-### Get topwords from menu items ###
+-   **Modeling Tab** We use the cleaned data and metadata to train various machine learning models including Naive Bayes, Logistic Regression, and MLP (Neural Network). We tune hyper-parameters and compare model performance on a test set using accuracy metrics and confusion matrices.
 
-topwords <- sb_nutr |>
-  unnest_tokens(word, Item, token="words") |>
-  group_by(word) |>
-  summarise(word_frequency = n()) |>
-  arrange(across(word_frequency, desc)) |>
-  head(10)
-```
+-   **Results Tab** We interpret the models by identifying the most predictive keywords for spam and non-spam, and test the final best model on example email inputs.
 
+------------------------------------------------------------------------
 
-## Showcasing plots {.tabset}
+## 🎯 Objective
 
-### Figure 1
+Using this dataset, our goals are to:
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-sb_nutr_long <- sb_nutr |>
-  unnest_tokens(word, Item, token = "words") |>
-  filter(word %in% topwords$word) |>
-  pivot_longer(cols = c(Calories, `Fat (g)`, `Carb. (g)`, `Fiber (g)`, `Protein (g)`),
-                        names_to = "Nutrient", values_to = "Value")
+  - Train an effective model to classify emails as spam or non-spam
+  - Identify the keywords most associated with spam emails
 
-plot_ly(data = sb_nutr_long, x = ~word, y = ~Value, color = ~Nutrient, type = "box") |>
-  layout(title = "Nutrient Values for Top 10 Word Items", 
-         xaxis = list(title = "item_word"), yaxis = list(title = "Nutrient_value"),
-         hovermode = "compare")
-```
-
-### Figure 2
-
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-sb_nutr |>
-  unnest_tokens(word, Item, token="words") |>
-  filter(word %in% topwords$word) |>
-  plot_ly(
-    x = ~Calories, y= ~`Carb. (g)`, type = "scatter", mode = "markers", color = ~Category,
-    hoverinfo = "text", text = ~paste0("Item: ", word)
-  ) |>
-  layout(title = "Cal vs Carbs", 
-         xaxis = list(title = "Calories"), yaxis = list(title = "Carbs"),
-         hovermode = "compare")
-```
-
-{-}
+This project aims to improve user safety by utilizing data science tools for automatic spam detection.

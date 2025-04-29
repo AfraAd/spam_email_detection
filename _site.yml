@@ -1,6 +1,17 @@
-name: "my-website"
+name: "Spam Email Detection"
 navbar:
-  title: "My Website"
+  title: "InboxIntel"
   left:
-    - text: "Home"
+    - icon: fa-home
       href: index.html
+    - text: "EDA"
+      href: eda.html
+    - text: "Visuals"
+      href: visuals.html
+    - text: "Modeling"
+      href: modeling.html
+    - text: "Results"
+      href: results.html
+  right:
+    - icon: fa-github fa-lg
+      href: https://github.com/AfraAd/spam_email_detection

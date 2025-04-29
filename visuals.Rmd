@@ -1,0 +1,350 @@
+---
+title: "InboxIntel Visuals"
+author: "Afra Azad"
+output: 
+    html_document:
+        toc: TRUE
+        toc_float: TRUE
+---
+
+# 📊 Visuals
+
+This section provides interactive visualizations to better understand word distributions, frequencies, and patterns in spam vs non-spam emails. There is also summary table examining the differences in vocabulary for spam and non-spam emails.
+
+------------------------------------------------------------------------
+
+## Figure 1: TF-IDF vs. Word Frequency Scatter Plot
+
+We examine how frequently a word appears in emails and how important it is using TF-IDF scores.
+
+```{python}
+# 1. Flatten tokens and count frequencies
+spam_words = [word for tokens in df[df.label == 1]['body tokens'] for word in tokens]
+non_spam_words = [word for tokens in df[df.label == 0]['body tokens'] for word in tokens]
+
+spam_counts = Counter(spam_words)
+nonspam_counts = Counter(non_spam_words)
+
+# Top 20 from each
+spam_df = pd.DataFrame(spam_counts.most_common(50), columns=["word", "count"])
+nonspam_df = pd.DataFrame(nonspam_counts.most_common(50), columns=["word", "count"])
+spam_df["label"] = "Spam"
+nonspam_df["label"] = "Non-Spam"
+
+# Combine frequency data
+top_words_df = pd.concat([spam_df, nonspam_df], ignore_index=True)
+
+# 2. Prepare TF-IDF on all docs
+df["joined"] = df["body tokens"].apply(lambda tokens: " ".join(tokens))
+spam_docs = df[df.label == 1]["joined"]
+nonspam_docs = df[df.label == 0]["joined"]
+
+# Limit vocabulary to the top 20 words from both categories
+top_words = top_words_df["word"].unique().tolist()
+vectorizer = TfidfVectorizer(vocabulary=top_words)
+
+# Compute mean TF-IDF for each class
+spam_tfidf = vectorizer.fit_transform(spam_docs)
+nonspam_tfidf = vectorizer.fit_transform(nonspam_docs)
+
+# Wrap TF-IDF results into DataFrames
+spam_scores = pd.DataFrame({
+    "word": vectorizer.get_feature_names_out(),
+    "tfidf": spam_tfidf.mean(axis=0).A1,
+    "label": "Spam"
+})
+
+nonspam_scores = pd.DataFrame({
+    "word": vectorizer.get_feature_names_out(),
+    "tfidf": spam_tfidf.mean(axis=0).A1,
+    "label": "Non-Spam"
+})
+
+tfidf_df = pd.concat([spam_scores, nonspam_scores], ignore_index=True)
+
+# 3. Merge TF-IDF back with top_words_df
+top_words_df = top_words_df.merge(tfidf_df, on=["word", "label"], how="left")
+```
+
+```{python include=FALSE}
+fig1 = px.scatter(
+    top_words_df,
+    x="count",
+    y="tfidf",
+    color="label",
+    text="word",
+    title="TF-IDF vs Word Frequency in Spam and Non-Spam Emails",
+    labels={"count": "Word Frequency", "tfidf": "TF-IDF Score"},
+    hover_data={"word": True, "count": True, "tfidf": ':.4f', "label": True},
+    height=600
+)
+
+fig1.update_traces(marker=dict(size=12, opacity=0.8), textposition="top center")
+
+fig1.update_layout(
+    template="plotly_white",
+    xaxis=dict(title="Word Frequency"),
+    yaxis=dict(title="TF-IDF Score")
+)
+
+pio.write_html(fig1, file="iframe_figures/figure_1.html", auto_open=False)
+```
+
+```{python fig.cap="Scatter plot of word frequency against TF-IDF scores, grouped by whether words appear in spam or non-spam emails."}
+IFrame(src="iframe_figures/figure_1.html", width="100%", height=620)
+```
+
+**Figure 1** shows the relationship between word frequency and TF-IDF score for spam and non-spam emails. There appears to be a linear relationship between word frequency and TF-IDF. However, the distribution differs by class:
+
+-   Non-spam word frequency has little to no relationship with TF-IDF and generally has a lower TF-IDF score.
+-   Spam word frequency show a more strictly linear pattern, suggesting common terms that are spam are also frequent across spam emails.
+
+
+## Figure 2: Top 20 Most Frequent Bigrams by Label
+
+This chart shows the most common word pairs (bigrams) in both spam and non-spam emails.
+
+```{python}
+# Step 1: Generate bigrams
+def generate_bigrams(tokens):
+    return list(bigrams(tokens))
+
+spam_bigrams = [bg for tokens in df[df['label'] == 1]['body tokens'] for bg in generate_bigrams(tokens)]
+non_spam_bigrams = [bg for tokens in df[df['label'] == 0]['body tokens'] for bg in generate_bigrams(tokens)]
+
+spam_bigram_counts = Counter(spam_bigrams)
+non_spam_bigram_counts = Counter(non_spam_bigrams)
+
+# Step 2: Combine and get top 20 overall bigrams by total frequency
+total_bigram_counts = spam_bigram_counts + non_spam_bigram_counts
+top_20_bigrams = [f"{a} {b}" for (a, b), _ in total_bigram_counts.most_common(20)]
+
+# Step 3: Build frequency dataframe for Spam and Non-Spam
+def bigram_freq_df(counter, label):
+    data = [(f"{a} {b}", count) for (a, b), count in counter.items() if f"{a} {b}" in top_20_bigrams]
+    df = pd.DataFrame(data, columns=["bigram", "count"])
+    df["label"] = label
+    return df
+
+df_spam = bigram_freq_df(spam_bigram_counts, "Spam")
+df_nonspam = bigram_freq_df(non_spam_bigram_counts, "Non-Spam")
+
+df_bigrams = pd.concat([df_spam, df_nonspam], ignore_index=True)
+```
+
+```{python include=FALSE}
+# Step 4: Interactive horizontal bar plot
+fig2 = px.bar(
+    df_bigrams,
+    x="count",
+    y="bigram",
+    color="label",
+    orientation="h",
+    title="Top 10 Bigrams in Spam vs Non-Spam Emails",
+    labels={"count": "Frequency", "bigram": "Bigram"},
+    hover_data={"bigram": True, "count": True, "label": True},
+    text="count",
+    height=600
+)
+
+# Styling
+fig2.update_layout(
+    yaxis=dict(categoryorder="total ascending"),
+    template="plotly_white",
+    bargap=0.25
+)
+
+pio.write_html(fig2, file="iframe_figures/figure_2.html", auto_open=False)
+```
+
+```{python fig.cap="Bar plot of the top 20 most frequent bigrams, labeled by whether they occur in spam or non-spam emails."}
+IFrame(src="iframe_figures/figure_2.html", width="100%", height=620)
+```
+
+**Figure 2** presents the top 20 most frequent bigrams, labeled by whether they appear in spam or non-spam emails.
+
+-   The top 8 bigrams are all from non-spam emails, likely due to repetitive work-related words like "submission" and "sender".
+-   The bottom words are spam bigrams. They are more diverse, likely due to the varied content and tactics used in phishing or promotional messages.
+
+
+## Figure 3: Word Frequency Per Source
+
+This chart displays the top 10 most frequent email body tokens for each dataset, broken down by source and labeled as spam or non-spam.
+
+```{python}
+df_exploded = df.explode("body tokens").dropna(subset=["body tokens"])
+df_exploded["label"] = df_exploded["label"].map({0: "Non-Spam", 1: "Spam"})
+
+word_counts = (
+    df_exploded
+    .groupby(["source", "label", "body tokens"])
+    .size()
+    .reset_index(name="count")
+)
+
+# Step 1: Get total counts per token per source (ignoring label)
+top10_tokens_per_source = (
+    df_exploded
+    .groupby(["source", "body tokens"])
+    .size()
+    .reset_index(name="total_count")
+    .sort_values(["source", "total_count"], ascending=[True, False])
+    .groupby("source")
+    .head(10)
+)
+
+# Step 2: Merge with original label-level counts to get spam vs non-spam for each top token
+top_words_labeled = (
+    word_counts
+    .merge(top10_tokens_per_source, on=["source", "body tokens"])
+)
+```
+
+```{python include=FALSE}
+fig3 = px.bar(
+    top_words_labeled,
+    x="count",
+    y="body tokens",
+    color="label",
+    facet_col="source",
+    orientation="h",
+    title="Top 10 Frequent Words per Source",
+    height=700,
+    category_orders={"label": ["Spam", "Non-Spam"]},
+    facet_col_spacing=0.05
+)
+
+for i in range(1, len(fig3.layout.annotations) + 1):
+    fig3.update_yaxes(
+        showticklabels=True,
+        row=1,
+        col=i
+    )
+
+# Avoid matching axes (which can hide some labels)
+fig3.update_yaxes(matches=None, categoryorder='total ascending')
+fig3.update_xaxes(matches=None, title="count", showline=True)
+
+# Remove repeated x-axis labels under each facet
+for axis in fig3.layout:
+    if axis.startswith("xaxis") and axis != "xaxis":
+        fig3.layout[axis].title = None
+
+fig3.update_layout(
+    xaxis=dict(title=""),
+    annotations=[a for a in fig3.layout.annotations],
+    bargap=0.15,
+    font=dict(size=12),
+)
+
+fig3.for_each_annotation(lambda a: a.update(text=a.text.replace("source=", "")))
+
+fig3.update_layout(
+    annotations=fig3.layout.annotations + (
+        dict(
+            text="count",
+            xref="paper",
+            yref="paper",
+            x=0.5,
+            y=-0.1,
+            showarrow=False,
+            font=dict(size=14)
+        ),
+    )
+)
+
+pio.write_html(fig3, file="iframe_figures/figure_3.html", auto_open=False)
+```
+
+```{python fig.cap="Bubble word clouds of top 50 most frequent spam and non-spam words."}
+IFrame(src="iframe_figures/figure_3.html", width="100%", height=620)
+```
+
+**Figure 3** displays the ten most common words in email bodies for each dataset source, with bars coloured by whether the emails were spam.
+
+  - The most common words from the CEAS_08 dataset tend to be from non-spam emails, and words from Nazario and Naigrian_Fraud are all from spam emails. Conversely, the top words from SpamAssasin are evenly split between spam and non-spam.
+  - Though CEAS_08 is the only dataset with predominantly spam email, its top token,  has the largest frequency of over 20k. This makes sense as the top words in the dataset are also the top overall words in our combined dataset. This could indicate the information from CEAS_08 could dominate our analysis.
+  
+Further analysis of these data sources and their impact on our results is provided in the final report.
+
+
+## Figure 4: Distrubution of Emails by Hours Sent
+
+This histogram compares the distribution of spam and non-spam emails by hour of the day, highlighting differences in their sending patterns.
+
+```{python include=FALSE}
+df_plot['label_name'] = df_plot['label'].map({0: 'Non-Spam', 1: 'Spam'})
+
+# Create the histogram
+fig4 = px.histogram(
+    df_plot,
+    x='hour',
+    color='label_name',
+    nbins=24,
+    barmode='overlay',
+    labels={'hour': 'Hour of Day (Military Time)', 'label_name': 'Email Type'},
+    title='Distribution of Emails by Hour (Spam vs Non-Spam)'
+)
+
+# Clean up layout
+fig4.update_layout(
+    bargap=0.1,
+    xaxis=dict(tickmode='linear', dtick=1),
+    yaxis_title="Number of Emails",
+    xaxis_title="Hour of Day",
+    title_x=0.5
+)
+
+pio.write_html(fig4, file="iframe_figures/figure_4.html", auto_open=False)
+```
+
+```{python fig.cap="Bubble word clouds of top 50 most frequent spam and non-spam words."}
+IFrame(src="iframe_figures/figure_4.html", width="100%", height=620)
+```
+
+**Figure 4:** displays the distribution of hour of day email is sent for spam and non-spam email.
+
+  - It appears spam emails tend to be sent during the day; whereas, non-spam emails are consistently sent throughout the day and night, especially at 8 am. This makes sense as many work emails are scheduled to be sent at the beginning of the work day at 8. 
+  - Hour sent can be a useful variable for our modelling.
+
+
+## Table 1: Summary Statisacs of Difference in Vocabulary
+
+The following table summarizes the differences in lexical diversity between spam and non-spam emails. Lexical diversity measures the percentage of unique words within each group.
+
+```{python}
+# Create a dictionary with the summary statistics
+summary_data = {
+    "Metric": [
+        "Unique Words",
+        "Total Words",
+        "Average Words per Email",
+        "Lexical Diversity"
+    ],
+    "Spam Emails": [
+        len(set(spam_words)),
+        len(spam_words),
+        df[df.label == 1]['body tokens'].apply(len).mean(),
+        len(set(spam_words)) / len(spam_words)
+    ],
+    "Non-Spam Emails": [
+        len(set(non_spam_words)),
+        len(non_spam_words),
+        df[df.label == 0]['body tokens'].apply(len).mean(),
+        len(set(non_spam_words)) / len(non_spam_words)
+    ]
+}
+
+# Convert to a pandas DataFrame
+summary_df = pd.DataFrame(summary_data)
+
+# Format numbers for readability
+summary_df["Spam Emails"] = summary_df["Spam Emails"].apply(lambda x: f"{x:.4f}")
+summary_df["Non-Spam Emails"] = summary_df["Non-Spam Emails"].apply(lambda x: f"{x:.4f}")
+```
+
+```{python fig.cap="The following are summary statistics comparing spam and non-spam emails."}
+print(tabulate(summary_df, headers='keys', tablefmt='pretty', showindex=False))
+```
+
+Spam emails tend to contain fewer words but have more unique words and a larger lexicon. This suggests that spam emails may use uncommon words in non-spam emails, which will be useful knowledge for our modeling.

@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Afra Azad" />
+
+
+<title>InboxIntel Exploratory Data Analysis</title>
+
+<script src="site_libs/header-attrs-2.29/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-6.5.2/css/all.min.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet" />
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">InboxIntel</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">
+    <span class="fa fa-home"></span>
+     
+  </a>
+</li>
+<li>
+  <a href="eda.html">EDA</a>
+</li>
+<li>
+  <a href="visuals.html">Visuals</a>
+</li>
+<li>
+  <a href="modeling.html">Modeling</a>
+</li>
+<li>
+  <a href="results.html">Results</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/AfraAd/spam_email_detection">
+    <span class="fa fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">InboxIntel Exploratory Data Analysis</h1>
+<h4 class="author">Afra Azad</h4>
+
+</div>
+
+
+<div id="exploratory-data-analysis" class="section level1">
+<h1>Exploratory Data Analysis</h1>
+<p>The goal of this workflow is to take a raw email dataset and prepare
+the email body for input into machine learning models. This involves
+cleaning the text, removing irrelevant tokens, and normalizing words
+through stemming and lemmatization.</p>
+<hr />
+<div id="step-1-load-libraries-and-data" class="section level3">
+<h3>📥 Step 1: Load Libraries and Data</h3>
+<p>We start by importing necessary Python libraries for data handling,
+visualization, and modeling. Then we load the phishing dataset.</p>
+<pre class="python"><code># Import needed libraries
+import pandas as pd
+import numpy as np
+import kagglehub
+from kagglehub import KaggleDatasetAdapter
+from datetime import datetime
+from IPython.display import display, IFrame
+import matplotlib.pyplot as plt
+import seaborn as sns
+from wordcloud import WordCloud
+from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+import nltk
+from nltk import bigrams
+from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
+from nltk.tokenize import word_tokenize
+from nltk.stem import PorterStemmer
+from nltk.stem import WordNetLemmatizer
+import re
+import spacy
+from collections import Counter
+import plotly.io as pio
+pio.renderers.default = &quot;iframe_connected&quot;
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+import plotly.express as px
+import webbrowser
+from sklearn.linear_model import LogisticRegression
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.neural_network import MLPClassifier
+from sklearn.model_selection import GridSearchCV
+from sklearn.naive_bayes import BernoulliNB
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+from tabulate import tabulate
+import random
+random.seed(42)</code></pre>
+<pre class="python"><code>nltk.download(&#39;stopwords&#39;)</code></pre>
+<pre><code>## True</code></pre>
+<pre class="python"><code>nltk.download(&#39;punkt&#39;)</code></pre>
+<pre><code>## True</code></pre>
+<pre class="python"><code>nltk.download(&quot;wordnet&quot;)</code></pre>
+<pre><code>## True</code></pre>
+<pre class="python"><code>nltk.download(&quot;omw-1.4&quot;)</code></pre>
+<pre><code>## True</code></pre>
+<pre class="python"><code>nlp = spacy.load(&quot;en_core_web_sm&quot;)
+ps = PorterStemmer()
+wnl = WordNetLemmatizer()</code></pre>
+<pre class="python"><code>df = pd.read_csv(&quot;data\phishing_data.csv&quot;)</code></pre>
+</div>
+<div id="step-2-explore-dataset-structure" class="section level3">
+<h3>🔍 Step 2: Explore Dataset Structure</h3>
+<p>We begin by identifying missing values and understanding the data
+types for each column.</p>
+<pre class="python"><code># Check dimentions of dataset
+print(&quot;First 5 records:\n&quot;, df.head(), &quot;\n&quot;)</code></pre>
+<pre><code>## First 5 records:
+##                                                sender  ...       source
+## 0                   Young Esposito &lt;Young@iworld.de&gt;  ...  CEAS_08.csv
+## 1                       Mok &lt;ipline&#39;s1983@icable.ph&gt;  ...  CEAS_08.csv
+## 2  Daily Top 10 &lt;Karmandeep-opengevl@universalnet...  ...  CEAS_08.csv
+## 3                 Michael Parker &lt;ivqrnai@pobox.com&gt;  ...  CEAS_08.csv
+## 4  Gretchen Suggs &lt;externalsep1@loanofficertool.com&gt;  ...  CEAS_08.csv
+## 
+## [5 rows x 8 columns]</code></pre>
+<pre class="python"><code>print(&quot;Dimensions:\n&quot;, df.shape, &quot;\n&quot;)</code></pre>
+<pre><code>## Dimensions:
+##  (49860, 8)</code></pre>
+<pre class="python"><code># See data types
+df.info()</code></pre>
+<pre><code>## &lt;class &#39;pandas.core.frame.DataFrame&#39;&gt;
+## RangeIndex: 49860 entries, 0 to 49859
+## Data columns (total 8 columns):
+##  #   Column    Non-Null Count  Dtype 
+## ---  ------    --------------  ----- 
+##  0   sender    49529 non-null  object
+##  1   receiver  47768 non-null  object
+##  2   date      49377 non-null  object
+##  3   subject   49773 non-null  object
+##  4   body      49859 non-null  object
+##  5   urls      49860 non-null  int64 
+##  6   label     49860 non-null  int64 
+##  7   source    49860 non-null  object
+## dtypes: int64(2), object(6)
+## memory usage: 3.0+ MB</code></pre>
+<pre class="python"><code># Check for missing values
+print(&quot;Missing values:\n&quot;, df.isnull().sum(), &quot;\n&quot;)</code></pre>
+<pre><code>## Missing values:
+##  sender       331
+## receiver    2092
+## date         483
+## subject       87
+## body           1
+## urls           0
+## label          0
+## source         0
+## dtype: int64</code></pre>
+</div>
+<div id="step-3-clean-missing-and-improperly-formatted-data"
+class="section level3">
+<h3>🧼 Step 3: Clean Missing and Improperly Formatted Data</h3>
+<p>Here we remove rows with missing email bodies or labels, examine
+outliars, and ensure variables are converted to the correct formats.
+Also, add timestamp as separate variable for our analysis.</p>
+<pre class="python"><code># Drop na values in body column
+df = df.dropna(subset=[&#39;body&#39;, &#39;label&#39;])
+
+# Check for missing values
+print(&quot;Missing values:\n&quot;, df.isnull().sum(), &quot;\n&quot;)</code></pre>
+<pre><code>## Missing values:
+##  sender       331
+## receiver    2092
+## date         483
+## subject       87
+## body           0
+## urls           0
+## label          0
+## source         0
+## dtype: int64</code></pre>
+<pre class="python"><code># Convert parameters to proper types
+df[&#39;label&#39;] = pd.to_numeric(df[&#39;label&#39;], errors=&#39;coerce&#39;)
+df[&#39;date&#39;] = pd.to_datetime(df[&#39;date&#39;], errors=&#39;coerce&#39;)</code></pre>
+<pre><code>## &lt;string&gt;:1: FutureWarning:
+## 
+## In a future version of pandas, parsing datetimes with mixed time zones will raise an error unless `utc=True`. Please specify `utc=True` to opt in to the new behaviour and silence this warning. To create a `Series` with mixed offsets and `object` dtype, please use `apply` and `datetime.datetime.strptime`</code></pre>
+<pre class="python"><code>df = df.dropna(subset=[&#39;date&#39;])
+df[&#39;time&#39;] = df[&#39;date&#39;].apply(lambda x: x.time())
+df[&#39;hour&#39;] = df[&#39;time&#39;].apply(lambda x: x.hour)
+
+# Recheck variable types
+print(df.info())</code></pre>
+<pre><code>## &lt;class &#39;pandas.core.frame.DataFrame&#39;&gt;
+## Index: 47583 entries, 0 to 49858
+## Data columns (total 10 columns):
+##  #   Column    Non-Null Count  Dtype 
+## ---  ------    --------------  ----- 
+##  0   sender    47507 non-null  object
+##  1   receiver  45646 non-null  object
+##  2   date      47583 non-null  object
+##  3   subject   47513 non-null  object
+##  4   body      47583 non-null  object
+##  5   urls      47583 non-null  int64 
+##  6   label     47583 non-null  int64 
+##  7   source    47583 non-null  object
+##  8   time      47583 non-null  object
+##  9   hour      47583 non-null  int64 
+## dtypes: int64(3), object(7)
+## memory usage: 4.0+ MB
+## None</code></pre>
+<pre class="python"><code># Now let&#39;s examine it&#39;s variables
+print(df[&#39;sender&#39;].describe())</code></pre>
+<pre><code>## count                                 47507
+## unique                                30125
+## top       qydlqcws-iacfym@issues.apache.org
+## freq                                    462
+## Name: sender, dtype: object</code></pre>
+<pre class="python"><code>print(df[&#39;receiver&#39;].describe())</code></pre>
+<pre><code>## count                           45646
+## unique                           5927
+## top       user6@gvc.ceas-challenge.cc
+## freq                             1375
+## Name: receiver, dtype: object</code></pre>
+<pre class="python"><code>print(df[&#39;subject&#39;].describe())</code></pre>
+<pre><code>## count                    47513
+## unique                   21995
+## top       CNN.com Daily Top 10
+## freq                      2930
+## Name: subject, dtype: object</code></pre>
+<pre class="python"><code>print(df[&#39;body&#39;].describe())</code></pre>
+<pre><code>## count     47583
+## unique    47582
+## top        \n\n
+## freq          2
+## Name: body, dtype: object</code></pre>
+<pre class="python"><code>print(df[&#39;urls&#39;].describe())</code></pre>
+<pre><code>## count    47583.000000
+## mean         0.673034
+## std          0.469109
+## min          0.000000
+## 25%          0.000000
+## 50%          1.000000
+## 75%          1.000000
+## max          1.000000
+## Name: urls, dtype: float64</code></pre>
+<pre class="python"><code>print(df[&#39;date&#39;].describe())</code></pre>
+<pre><code>## count                         47583
+## unique                        43945
+## top       2008-08-07 21:38:18-01:00
+## freq                              9
+## Name: date, dtype: object</code></pre>
+<pre class="python"><code>print(df[&#39;time&#39;].describe())</code></pre>
+<pre><code>## count        47583
+## unique       36175
+## top       08:00:51
+## freq            12
+## Name: time, dtype: object</code></pre>
+<pre class="python"><code>print(df[&#39;hour&#39;].describe())</code></pre>
+<pre><code>## count    47583.000000
+## mean        11.895425
+## std          6.777205
+## min          0.000000
+## 25%          6.000000
+## 50%         12.000000
+## 75%         18.000000
+## max         23.000000
+## Name: hour, dtype: float64</code></pre>
+<pre class="python"><code>print(df[&#39;source&#39;].value_counts())</code></pre>
+<pre><code>## source
+## CEAS_08.csv           39139
+## SpamAssasin.csv        4618
+## Nigerian_Fraud.csv     2850
+## Nazario.csv             976
+## Name: count, dtype: int64</code></pre>
+<pre class="python"><code>print(df[&#39;label&#39;].value_counts())</code></pre>
+<pre><code>## label
+## 1    27064
+## 0    20519
+## Name: count, dtype: int64</code></pre>
+<pre class="python"><code># Find row with min date
+display(df[df.date == df.date.dropna().min()])</code></pre>
+<pre><code>##                              sender  ... hour
+## 48742  &lt;FREE-TV-4-U6473u20@tfn.net&gt;  ...   11
+## 
+## [1 rows x 10 columns]</code></pre>
+<pre class="python"><code># Find row with max date
+display(df[df.date == df.date.dropna().max()])</code></pre>
+<pre><code>##                                         sender  ... hour
+## 29606  ricci &lt;ricci-jtnjibor@1010security.com&gt;  ...   15
+## 
+## [1 rows x 10 columns]</code></pre>
+<pre class="python"><code># Remove data outliar
+min_date = df[&#39;date&#39;].dropna().min()
+max_date = df[&#39;date&#39;].dropna().max()
+
+df = df[(df[&#39;date&#39;] != min_date) &amp; (df[&#39;date&#39;] != max_date)]</code></pre>
+</div>
+<div id="step-4-summary-statistics" class="section level3">
+<h3>📊 Step 4: Summary Statistics</h3>
+<p>We take a look at the most common senders, receivers, and subject
+lines to better understand the dataset context.</p>
+<pre class="python"><code># Exmaine the most and least common subject lines
+table_positive = df[df[&#39;label&#39;] == 1]
+table_negative = df[df[&#39;label&#39;] == 0]
+
+print(table_positive[&#39;subject&#39;].value_counts().head(10))</code></pre>
+<pre><code>## subject
+## CNN.com Daily Top 10                                       2930
+## CNN Alerts: My Custom Alert                                1406
+## Re:                                                         585
+## 123                                                         255
+## Re:                                                         123
+## How To Enlarge Penis Size                                   100
+## Qualitative replica watches for most exacting people         65
+## Penis Enlargment Reviews                                     62
+## Produce Stronger, Rock Hard Erections.                       61
+## You our client!                                              61
+## Name: count, dtype: int64</code></pre>
+<pre class="python"><code>print(table_positive[&#39;subject&#39;].value_counts().tail(10))</code></pre>
+<pre><code>## subject
+## -- USA Business Search CD --                                  1
+## Mortgage Rates Are Down.  teoqknmp                            1
+## The Elite Equity Indexed U.L. Policy                          1
+## The Government Grants you $25,000!                            1
+## Announcing Herbal Smoking Alternatives                        1
+## Toners and inkjet cartridges for less....          CTLOSJV    1
+## Tired Of Your High Mortgage Rate - REFINANCE TODAY.....       1
+## Hello lanigel Free Teen Action!                               1
+## ** You&#39;re -Approved-! **                                      1
+## ;) Look porno Gallery!!!                                      1
+## Name: count, dtype: int64</code></pre>
+<pre class="python"><code>print(table_negative[&#39;subject&#39;].value_counts().head(10))</code></pre>
+<pre><code>## subject
+## Re: [opensuse] openSUSE 11.0 and the Non-ready KDE4              103
+## Direct message from SpamExperts via web                           84
+## Re: [opensuse] Defragging: possible?  necessary?                  76
+## Re: [opensuse]  [OT] How much power does a PC really consume?     74
+## Re: [opensuse] ext3 check forced = frustration                    69
+## Re: [Python-Dev] PEP 365 (Adding the pkg_resources module)        62
+## Re: [Python-3000] u&#39;text&#39; as an alias for &#39;text&#39;?                 61
+## Re: [Python-3000] range() issues                                  51
+## Re: [opensuse] [OT] How much power does a PC really consume?      50
+## Re: [opensuse] true news group?                                   49
+## Name: count, dtype: int64</code></pre>
+<pre class="python"><code>print(table_negative[&#39;subject&#39;].value_counts().tail(10))</code></pre>
+<pre><code>## subject
+## SOURCEFORGE.NET UPDATE: August 14, 2002                 1
+## Neat Net Tricks Standard Issue 131 - August 15, 2002    1
+## WinXPnews: Time To Patch Your Windows Media Player      1
+## iSilo announcements (August 15, 2002)                   1
+## MiniNTK 2002-08-16                                      1
+## World Wide Words -- 17 Aug 02                           1
+## Re: kernel BUG at filemap.c:843!                        1
+## [use Perl] Stories for 2002-08-18                       1
+## Movies to Watch on Lifetime                             1
+## [use Perl] Stories for 2002-09-17                       1
+## Name: count, dtype: int64</code></pre>
+<pre class="python"><code># Exmaine the most and least common senders
+print(df[&#39;sender&#39;].value_counts().head(10))</code></pre>
+<pre><code>## sender
+## qydlqcws-iacfym@issues.apache.org                 462
+## Guido van Rossum &lt;hoauf@python.org&gt;               295
+## &quot;\\&quot;Martin v. Löwis\\&quot;&quot; &lt;qpnysl@v.loewis.de&gt;      276
+## &quot;Carlos E. R.&quot; &lt;vyjwd.trpcau@telefonica.net&gt;      208
+## Aaron Kulkis &lt;cmiqlkx91@hotpop.com&gt;               183
+## Rafael Garcia-Suarez &lt;pvhuhqgncrxnu@gmail.com&gt;    158
+## Christian Heimes &lt;wluhe@cheimes.de&gt;               152
+## Barry Warsaw &lt;pjaxq@python.org&gt;                   131
+## iybz@pobox.com                                    124
+## Per Jessen &lt;uee@computer.org&gt;                     113
+## Name: count, dtype: int64</code></pre>
+<pre class="python"><code>print(df[&#39;sender&#39;].value_counts().tail(10))</code></pre>
+<pre><code>## sender
+## Amir &lt;&gt;                                                     1
+## Sylvia George &lt;cco@boelzner.com&gt;                            1
+## Sheena Mckenna &lt;Sheena@allianz.pt&gt;                          1
+## Noel Cano &lt;dwtiscalim@tiscali.it&gt;                           1
+## Daily Top 10 &lt;Kandace-ukodibeh@victoriaco.com&gt;              1
+## Ty Conway &lt;StaceybearberryRojas@defamer.com&gt;                1
+## &quot;\\&quot;Michael Höller\\&quot;&quot; &lt;g_nsotzyl@gmx.de&gt;                   1
+## Cornell Gillespie &lt;AntonypyrometerCardenas@nature.com&gt;      1
+## Nhan &lt;&gt;                                                     1
+## Caroline Aragon &lt;dwthaidomainnamesm@thaidomainnames.com&gt;    1
+## Name: count, dtype: int64</code></pre>
+<pre class="python"><code># Exmaine the most and least common recievers
+print(df[&#39;receiver&#39;].value_counts().head(10))</code></pre>
+<pre><code>## receiver
+## user6@gvc.ceas-challenge.cc           1375
+## wkilxloc@opensuse.org                 1230
+## user2.1@gvc.ceas-challenge.cc         1036
+## user2.2@gvc.ceas-challenge.cc          922
+## user2.4@gvc.ceas-challenge.cc          738
+## user2.13@gvc.ceas-challenge.cc         686
+## user7@gvc.ceas-challenge.cc            674
+## user7-ext4@gvc.ceas-challenge.cc       655
+## user8.2-ext1@gvc.ceas-challenge.cc     654
+## user7-ext3@gvc.ceas-challenge.cc       652
+## Name: count, dtype: int64</code></pre>
+<pre class="python"><code>print(df[&#39;receiver&#39;].value_counts().tail(10))</code></pre>
+<pre><code>## receiver
+## lihochin@yahoo.com                                              1
+## foo-faq@foo-ag.de, FOREGONE@MSN.COM, forgione@starpower.net,    1
+## Nadeem.Pedersev@dogma.slashnull.org                             1
+## jalalx.siksik@intel.com                                         1
+## &lt;finance_now21@cybergrrl.com&gt;                                   1
+## &quot;ihslzjy@msn.com&quot; &lt;ihslzjy@msn.com&gt;                             1
+## &lt;Value.Seeker@netnoteinc.com&gt;                                   1
+## Paul Lehto &lt;babselaxgyc@gmail.com&gt;                              1
+## dannywalk@ntlworld.com, ross@excentric.com,                     1
+## bookscanada@ramsaybooks.com                                     1
+## Name: count, dtype: int64</code></pre>
+</div>
+<div id="step-5-visualize-temporal-trends" class="section level3">
+<h3>📅 Step 5: Visualize Temporal Trends</h3>
+<p>Let’s visualize the distribution of emails across the timeline, and
+the distribution of the time stamps.</p>
+<pre class="python"><code>df_plot = df.dropna(subset=[&#39;date&#39;])
+
+fig, axs = plt.subplots(2, 1, figsize=(14, 6), sharex=False)
+
+# Plot 1: Histogram of dates
+df[&#39;date&#39;].hist(bins=30, ax=axs[0])
+axs[0].set_title(&#39;Date Distribution&#39;)
+axs[0].set_ylabel(&#39;Frequency&#39;)
+axs[0].tick_params(axis=&#39;x&#39;, rotation=45)
+
+# Plot 2: Phishing labels over time
+df_plot.set_index(&#39;date&#39;)[&#39;label&#39;].plot(
+    ax=axs[1], linestyle=&#39; &#39;, marker=&#39;o&#39;, alpha=0.7
+)
+axs[1].set_title(&#39;Phishing Labels Over Time&#39;)
+axs[1].set_xlabel(&#39;Date&#39;)
+axs[1].set_ylabel(&#39;Spam (0 or 1)&#39;)
+axs[1].tick_params(axis=&#39;x&#39;, rotation=45)
+
+# Adjust spacing between plots
+plt.tight_layout(pad=3.0)
+plt.show()</code></pre>
+<p><img src="eda_files/figure-html/unnamed-chunk-13-1.png" width="1344" /></p>
+<pre class="python"><code>plt.figure(figsize=(10,6))
+plt.hist(df_plot[&#39;hour&#39;], bins=24, range=(0,24), edgecolor=&#39;black&#39;)
+plt.xlabel(&#39;Hour of Day&#39;)
+plt.ylabel(&#39;Number of Emails&#39;)
+plt.title(&#39;Distribution of Emails by Hour&#39;)
+plt.xticks(range(0,25))</code></pre>
+<pre><code>## ([&lt;matplotlib.axis.XTick object at 0x000001F3AAC58950&gt;, &lt;matplotlib.axis.XTick object at 0x000001F3AA283ED0&gt;, &lt;matplotlib.axis.XTick object at 0x000001F3AA2F76D0&gt;, &lt;matplotlib.axis.XTick object at 0x000001F3AA22CCD0&gt;, &lt;matplotlib.axis.XTick object at 0x000001F3AA22DED0&gt;, &lt;matplotlib.axis.XTick object at 0x000001F3AA2291D0&gt;, &lt;matplotlib.axis.XTick object at 0x000001F3AA22B410&gt;, &lt;matplotlib.axis.XTick object at 0x000001F3AA221290&gt;, &lt;matplotlib.axis.XTick object at 0x000001F3AA223F90&gt;, &lt;matplotlib.axis.XTick object at 0x000001F3AA20E3D0&gt;, &lt;matplotlib.axis.XTick object at 0x000001F3AA20F1D0&gt;, &lt;matplotlib.axis.XTick object at 0x000001F3AA209290&gt;, &lt;matplotlib.axis.XTick object at 0x000001F3AA20A190&gt;, &lt;matplotlib.axis.XTick object at 0x000001F3AA200590&gt;, &lt;matplotlib.axis.XTick object at 0x000001F3AA200410&gt;, &lt;matplotlib.axis.XTick object at 0x000001F3AA301410&gt;, &lt;matplotlib.axis.XTick object at 0x000001F3AA303850&gt;, &lt;matplotlib.axis.XTick object at 0x000001F3AA3096D0&gt;, &lt;matplotlib.axis.XTick object at 0x000001F3AA3097D0&gt;, &lt;matplotlib.axis.XTick object at 0x000001F3AA20A6D0&gt;, &lt;matplotlib.axis.XTick object at 0x000001F3AA311150&gt;, &lt;matplotlib.axis.XTick object at 0x000001F3AA318550&gt;, &lt;matplotlib.axis.XTick object at 0x000001F3AA31B890&gt;, &lt;matplotlib.axis.XTick object at 0x000001F3AA3210D0&gt;, &lt;matplotlib.axis.XTick object at 0x000001F3AA31A6D0&gt;], [Text(0, 0, &#39;0&#39;), Text(1, 0, &#39;1&#39;), Text(2, 0, &#39;2&#39;), Text(3, 0, &#39;3&#39;), Text(4, 0, &#39;4&#39;), Text(5, 0, &#39;5&#39;), Text(6, 0, &#39;6&#39;), Text(7, 0, &#39;7&#39;), Text(8, 0, &#39;8&#39;), Text(9, 0, &#39;9&#39;), Text(10, 0, &#39;10&#39;), Text(11, 0, &#39;11&#39;), Text(12, 0, &#39;12&#39;), Text(13, 0, &#39;13&#39;), Text(14, 0, &#39;14&#39;), Text(15, 0, &#39;15&#39;), Text(16, 0, &#39;16&#39;), Text(17, 0, &#39;17&#39;), Text(18, 0, &#39;18&#39;), Text(19, 0, &#39;19&#39;), Text(20, 0, &#39;20&#39;), Text(21, 0, &#39;21&#39;), Text(22, 0, &#39;22&#39;), Text(23, 0, &#39;23&#39;), Text(24, 0, &#39;24&#39;)])</code></pre>
+<pre class="python"><code>plt.grid(axis=&#39;y&#39;, linestyle=&#39;--&#39;, alpha=0.7)</code></pre>
+<p><img src="eda_files/figure-html/unnamed-chunk-14-3.png" width="960" /></p>
+</div>
+<div id="step-6-add-reciever-and-sender-emails" class="section level3">
+<h3>🧩 Step 6: Add Reciever and Sender Emails</h3>
+<p>We will add receiver and sender emails without the @, as the names
+can be useful for our analysis.</p>
+<pre class="python"><code># Split sender email
+df[&#39;sender_user&#39;] = df[&#39;sender&#39;].str.split(&#39;@&#39;).str[0]
+df[&#39;sender_domain&#39;] = df[&#39;sender&#39;].str.split(&#39;@&#39;).str[1]
+
+# Split receiver email
+df[&#39;receiver_user&#39;] = df[&#39;receiver&#39;].str.split(&#39;@&#39;).str[0]
+df[&#39;receiver_domain&#39;] = df[&#39;receiver&#39;].str.split(&#39;@&#39;).str[1]
+
+# Add them as words to the beginning of body
+df[&#39;body&#39;] = (
+  df[&#39;sender_user&#39;].fillna(&#39;&#39;) + &#39; &#39; +
+  df[&#39;sender_domain&#39;].fillna(&#39;&#39;) + &#39; &#39; +
+  df[&#39;receiver_user&#39;].fillna(&#39;&#39;) + &#39; &#39; +
+  df[&#39;receiver_domain&#39;].fillna(&#39;&#39;) + &#39; &#39; +
+  df[&#39;body&#39;]
+)</code></pre>
+</div>
+<div id="step-7-clean-and-tokenize-email-body" class="section level3">
+<h3>✂️ Step 7: Clean and Tokenize Email Body</h3>
+<p>We clean the email body by:</p>
+<ul>
+<li>Converting text to lowercase</li>
+<li>Removing punctuation, numbers, and extra white space</li>
+<li>Split into a list of individual words (tokens)</li>
+<li>Normalize the words by stemming and legitimatizing</li>
+</ul>
+<pre class="python"><code># Clean and tokenize emails
+df[&#39;body&#39;] = df[&#39;body&#39;].str.lower()
+df[&#39;body&#39;] = df[&#39;body&#39;].apply(lambda x: re.sub(r&#39;[^\w\s]&#39;, &#39;&#39;, str(x)))
+df[&#39;body&#39;] = df[&#39;body&#39;].apply(lambda x: re.sub(r&#39;\d+&#39;, &#39;&#39;, str(x)))
+df[&#39;body&#39;] = df[&#39;body&#39;].apply(lambda x: re.sub(r&#39;\s+&#39;, &#39; &#39;, str(x)).strip())
+
+# Tokenize body text
+df[&#39;body tokens&#39;] = df[&#39;body&#39;].str.split()
+
+# Define stop words and unnecessary words
+stop_words = set(stopwords.words(&#39;english&#39;))
+unnecessary_words = {&#39;&#39;, &#39;nt&#39;, &#39;cnn&#39;, &#39;cnncom&#39;, &#39;us&#39;, &#39;go&#39;, &#39;like&#39;, &#39;get&#39;, &#39;one&#39;, &#39;use&#39;, &#39;also&#39;, &#39;going&#39;, &#39;lp&#39;, &#39;lllp&#39;, &#39;im&#39;, &#39;_&#39;, &#39;submissionid&#39;, &#39;gvcceaschallengecc&#39;}
+
+# Apply cleaning steps
+df[&#39;body tokens&#39;] = df[&#39;body tokens&#39;].apply(lambda x: [word for word in x if word.lower() not in stop_words])
+df[&#39;body tokens&#39;] = df[&#39;body tokens&#39;].apply(lambda x: [word for word in x if not word.startswith(&#39;http&#39;)])
+df[&#39;body tokens&#39;] = df[&#39;body tokens&#39;].apply(lambda x: [word for word in x if len(word) &gt; 2])
+df[&#39;body tokens&#39;] = df[&#39;body tokens&#39;].apply(lambda x: [word for word in x if word.lower() not in unnecessary_words])
+df = df.dropna(subset=[&#39;body tokens&#39;])
+df[&#39;body tokens&#39;] = df[&#39;body tokens&#39;].apply(lambda x: [wnl.lemmatize(word) for word in x])
+df[&#39;body tokens&#39;] = df[&#39;body tokens&#39;].apply(lambda x: [ps.stem(word) for word in x])
+df = df.dropna(subset=[&#39;body tokens&#39;])
+
+# Convert tokenized text back to strings for TF-IDF
+df[&#39;cleaned body&#39;] = df[&#39;body tokens&#39;].apply(lambda x: &#39; &#39;.join(x))</code></pre>
+</div>
+<div id="final-output" class="section level2">
+<h2>Final Output</h2>
+<p>Each email is now represented as a cleaned, tokenized, and normalized
+list of words, and ready for classification with models like Naive
+Bayes, Logistic Regression, or MLP.</p>
+<pre class="python"><code>print(df[&#39;body tokens&#39;].head())</code></pre>
+<pre><code>## 0    [young, esposito, young, iworldd, user, buck, ...
+## 1    [mok, iplin, icableph, user, upgrad, sex, plea...
+## 2    [daili, top, karmandeepopengevl, universalnetp...
+## 3    [michael, parker, ivqrnai, poboxcom, spamassas...
+## 4    [gretchen, sugg, externalsep, loanofficertoolc...
+## Name: body tokens, dtype: object</code></pre>
+</div>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

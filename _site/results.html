@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Afra Azad" />
+
+
+<title>InboxIntel Results</title>
+
+<script src="site_libs/header-attrs-2.29/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-6.5.2/css/all.min.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet" />
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">InboxIntel</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">
+    <span class="fa fa-home"></span>
+     
+  </a>
+</li>
+<li>
+  <a href="eda.html">EDA</a>
+</li>
+<li>
+  <a href="visuals.html">Visuals</a>
+</li>
+<li>
+  <a href="modeling.html">Modeling</a>
+</li>
+<li>
+  <a href="results.html">Results</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/AfraAd/spam_email_detection">
+    <span class="fa fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">InboxIntel Results</h1>
+<h4 class="author">Afra Azad</h4>
+
+</div>
+
+
+<div id="results" class="section level1">
+<h1>🧪 Results</h1>
+<p>This section analyzes the most influential words in predicting spam
+using the logistic regression model, and tests the best model with new
+example emails with the MLP.</p>
+<hr />
+<div id="most-common-words-predicting-spam-vs-non-spam"
+class="section level2">
+<h2>🔠 Most Common Words Predicting Spam vs Non-Spam</h2>
+<p>Using the trained logistic regression model, we can interpret the
+model by looking at the coefficients. Words with the highest positive
+coefficients increase the probability of spam, and those with the most
+negative coefficients increase the probability of non-spam.</p>
+<pre class="python"><code>vocab_lst = list(vocab)
+
+coefficients = best_lg.coef_[0]
+
+top_positive_indices = np.argsort(-coefficients)[:10]
+top_negative_indices = np.argsort(coefficients)[:10]
+
+print(&quot;Top 10 words predicting spam:&quot;)</code></pre>
+<pre><code>## Top 10 words predicting spam:</code></pre>
+<pre class="python"><code>print([vocab_lst[i] for i in top_positive_indices])</code></pre>
+<pre><code>## [&#39;prior&#39;, &#39;minimum&#39;, &#39;inappropri&#39;, &#39;taylor&#39;, &#39;ken&#39;, &#39;sfnet&#39;, &#39;test&#39;, &#39;subscribeunsubscribechang&#39;, &#39;sunday&#39;, &#39;use&#39;]</code></pre>
+<pre class="python"><code>print(&quot;Top 10 words predicting non-spam:&quot;)</code></pre>
+<pre><code>## Top 10 words predicting non-spam:</code></pre>
+<pre class="python"><code>print([vocab_lst[i] for i in top_negative_indices])</code></pre>
+<pre><code>## [&#39;space&#39;, &#39;traditionstreetcom&#39;, &#39;disturb&#39;, &#39;summari&#39;, &#39;readi&#39;, &#39;eric&#39;, &#39;wouter&#39;, &#39;invent&#39;, &#39;gather&#39;, &#39;fair&#39;]</code></pre>
+</div>
+<div id="sample-email-predictions" class="section level2">
+<h2>✉️ Sample Email Predictions</h2>
+<p>Below, we use the final bag-of-words model to predict whether new
+email text is spam or not. The preprocessing is identical to the steps
+used in training.</p>
+<div id="preprocessing-and-vectorization-functions"
+class="section level3">
+<h3>Preprocessing and Vectorization Functions</h3>
+<pre class="python"><code>hr_mean = np.mean(df[&#39;hour&#39;])
+hr_std = np.std(df[&#39;hour&#39;])</code></pre>
+<pre class="python"><code>def preprocess_email(text, sender=&#39;&#39;, receiver=&#39;&#39;):
+  # Add sender and receiver words first
+  if sender:
+    sender_user, sender_domain = sender.split(&#39;@&#39;)[0], sender.split(&#39;@&#39;)[1]
+  else:
+    sender_user, sender_domain = &#39;&#39;, &#39;&#39;
+
+  if receiver:
+    receiver_user, receiver_domain = receiver.split(&#39;@&#39;)[0], receiver.split(&#39;@&#39;)[1]
+  else:
+    receiver_user, receiver_domain = &#39;&#39;, &#39;&#39;
+    
+  # Combine sender/receiver info + body
+  combined_text = f&quot;{sender_user} {sender_domain} {receiver_user} {receiver_domain} {text}&quot;
+    
+  # Basic cleaning
+  combined_text = combined_text.lower()
+  combined_text = re.sub(r&#39;[^\w\s]&#39;, &#39;&#39;, combined_text)
+  combined_text = re.sub(r&#39;\d+&#39;, &#39;&#39;, combined_text)
+  combined_text = re.sub(r&#39;\s+&#39;, &#39; &#39;, combined_text).strip()
+    
+  # Tokenize
+  tokens = combined_text.split()
+    
+  # Remove stop words, URLs, short words, unnecessary words
+  tokens = [word for word in tokens if word not in stop_words]
+  tokens = [word for word in tokens if not word.startswith(&#39;http&#39;)]
+  tokens = [word for word in tokens if len(word) &gt; 1]
+  tokens = [word for word in tokens if word not in unnecessary_words]
+    
+  # Lemmatize and stem
+  tokens = [wnl.lemmatize(word) for word in tokens]
+  tokens = [ps.stem(word) for word in tokens]
+  
+  return tokens
+
+def create_vector_input(text, sender, receiver, hour, vectorizer, hour_mean, hour_std):
+  tokens = preprocess_email(text, sender, receiver)
+  processed_text = &#39; &#39;.join(tokens)
+    
+  bow_vector = vectorizer.transform([processed_text]).toarray()
+    
+  standardized_hour = (hour - hour_mean) / hour_std
+  standardized_hour = np.array([[standardized_hour]])
+
+  final_vector = np.hstack((bow_vector, standardized_hour))
+    
+  return final_vector
+  
+def predict_email(text, sender, receiver, hour, vectorizer, model, hour_mean=hr_mean, hour_std=hr_std):
+  vector_input = create_vector_input(text, sender, receiver, hour, vectorizer, hour_mean, hour_std)
+  prediction = model.predict(vector_input)
+  return &quot;Spam&quot; if prediction[0] == 1 else &quot;Not Spam&quot;</code></pre>
+</div>
+<div id="example-1-spam-email-prediction" class="section level3">
+<h3>Example 1: Spam Email Prediction</h3>
+<p><strong>Expected Output:</strong> Spam</p>
+<pre class="python"><code>spam_email_text = &quot;Apply to our part-time, flexible, contract and be paid bi-weekly $2000.&quot;
+result = predict_email(
+    text=spam_email_text,
+    sender=&quot;hiring@quickcashnow.com&quot;,
+    receiver=&quot;john.doe@hotmail.com&quot;,
+    hour=12,
+    vectorizer=count_vectorizer,
+    model=best_mlp
+)
+print(&quot;Prediction:&quot;, result)</code></pre>
+<pre><code>## Prediction: Spam</code></pre>
+</div>
+<div id="example-2-non-spam-email-prediction" class="section level3">
+<h3>Example 2: Non-Spam Email Prediction</h3>
+<p><strong>Expected Output:</strong> Not Spam</p>
+<pre class="python"><code>non_spam_email_text = &quot;Hi team, Just a reminder that we have our weekly sync tomorrow at 10 AM in the usual meeting room. Please be on time and bring any updates you’d like to share. Thanks, Alice&quot;
+result = predict_email(
+    text=non_spam_email_text,
+    sender=&quot;alice.smith@company.com&quot;,
+    receiver=&quot;team@company.com&quot;,
+    hour=15,
+    vectorizer=count_vectorizer,
+    model=best_mlp
+)
+print(&quot;Prediction:&quot;, result)</code></pre>
+<pre><code>## Prediction: Not Spam</code></pre>
+<p>This confirms that the classifier correctly identifies both random
+marketing spam emails and typical workplace messages.</p>
+</div>
+</div>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,140 @@
+---
+title: "InboxIntel Results"
+author: "Afra Azad"
+output: 
+    html_document:
+        toc: TRUE
+        toc_float: TRUE
+---
+
+# 🧪 Results
+
+This section analyzes the most influential words in predicting spam using the logistic regression model, and tests the best model with new example emails with the MLP.
+
+------------------------------------------------------------------------
+
+## 🔠 Most Common Words Predicting Spam vs Non-Spam
+
+Using the trained logistic regression model, we can interpret the model by looking at the coefficients. Words with the highest positive coefficients increase the probability of spam, and those with the most negative coefficients increase the probability of non-spam.
+
+```{python}
+vocab_lst = list(vocab)
+
+coefficients = best_lg.coef_[0]
+
+top_positive_indices = np.argsort(-coefficients)[:10]
+top_negative_indices = np.argsort(coefficients)[:10]
+
+print("Top 10 words predicting spam:")
+print([vocab_lst[i] for i in top_positive_indices])
+
+print("Top 10 words predicting non-spam:")
+print([vocab_lst[i] for i in top_negative_indices])
+```
+
+
+## ✉️ Sample Email Predictions
+
+Below, we use the final bag-of-words model to predict whether new email text is spam or not. The preprocessing is identical to the steps used in training.
+
+### Preprocessing and Vectorization Functions
+
+```{python}
+hr_mean = np.mean(df['hour'])
+hr_std = np.std(df['hour'])
+```
+
+
+```{python}
+def preprocess_email(text, sender='', receiver=''):
+  # Add sender and receiver words first
+  if sender:
+    sender_user, sender_domain = sender.split('@')[0], sender.split('@')[1]
+  else:
+    sender_user, sender_domain = '', ''
+
+  if receiver:
+    receiver_user, receiver_domain = receiver.split('@')[0], receiver.split('@')[1]
+  else:
+    receiver_user, receiver_domain = '', ''
+    
+  # Combine sender/receiver info + body
+  combined_text = f"{sender_user} {sender_domain} {receiver_user} {receiver_domain} {text}"
+    
+  # Basic cleaning
+  combined_text = combined_text.lower()
+  combined_text = re.sub(r'[^\w\s]', '', combined_text)
+  combined_text = re.sub(r'\d+', '', combined_text)
+  combined_text = re.sub(r'\s+', ' ', combined_text).strip()
+    
+  # Tokenize
+  tokens = combined_text.split()
+    
+  # Remove stop words, URLs, short words, unnecessary words
+  tokens = [word for word in tokens if word not in stop_words]
+  tokens = [word for word in tokens if not word.startswith('http')]
+  tokens = [word for word in tokens if len(word) > 1]
+  tokens = [word for word in tokens if word not in unnecessary_words]
+    
+  # Lemmatize and stem
+  tokens = [wnl.lemmatize(word) for word in tokens]
+  tokens = [ps.stem(word) for word in tokens]
+  
+  return tokens
+
+def create_vector_input(text, sender, receiver, hour, vectorizer, hour_mean, hour_std):
+  tokens = preprocess_email(text, sender, receiver)
+  processed_text = ' '.join(tokens)
+    
+  bow_vector = vectorizer.transform([processed_text]).toarray()
+    
+  standardized_hour = (hour - hour_mean) / hour_std
+  standardized_hour = np.array([[standardized_hour]])
+
+  final_vector = np.hstack((bow_vector, standardized_hour))
+    
+  return final_vector
+  
+def predict_email(text, sender, receiver, hour, vectorizer, model, hour_mean=hr_mean, hour_std=hr_std):
+  vector_input = create_vector_input(text, sender, receiver, hour, vectorizer, hour_mean, hour_std)
+  prediction = model.predict(vector_input)
+  return "Spam" if prediction[0] == 1 else "Not Spam"
+```
+
+
+### Example 1: Spam Email Prediction
+
+**Expected Output:** Spam
+
+```{python}
+spam_email_text = "Apply to our part-time, flexible, contract and be paid bi-weekly $2000."
+result = predict_email(
+    text=spam_email_text,
+    sender="hiring@quickcashnow.com",
+    receiver="john.doe@hotmail.com",
+    hour=12,
+    vectorizer=count_vectorizer,
+    model=best_mlp
+)
+print("Prediction:", result)
+```
+
+
+### Example 2: Non-Spam Email Prediction
+
+**Expected Output:** Not Spam
+
+```{python}
+non_spam_email_text = "Hi team, Just a reminder that we have our weekly sync tomorrow at 10 AM in the usual meeting room. Please be on time and bring any updates you’d like to share. Thanks, Alice"
+result = predict_email(
+    text=non_spam_email_text,
+    sender="alice.smith@company.com",
+    receiver="team@company.com",
+    hour=15,
+    vectorizer=count_vectorizer,
+    model=best_mlp
+)
+print("Prediction:", result)
+```
+
+This confirms that the classifier correctly identifies both random marketing spam emails and typical workplace messages.

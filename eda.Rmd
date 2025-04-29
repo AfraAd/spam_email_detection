@@ -1,0 +1,286 @@
+---
+title: "InboxIntel Exploratory Data Analysis"
+author: "Afra Azad"
+output: 
+    html_document:
+        toc: TRUE
+        toc_float: TRUE
+---
+
+# Exploratory Data Analysis
+
+The goal of this workflow is to take a raw email dataset and prepare the email body for input into machine learning models. This involves cleaning the text, removing irrelevant tokens, and normalizing words through stemming and lemmatization.
+
+------------------------------------------------------------------------
+
+### 📥 Step 1: Load Libraries and Data
+
+We start by importing necessary Python libraries for data handling, visualization, and modeling. Then we load the phishing dataset.
+
+```{python}
+# Import needed libraries
+import pandas as pd
+import numpy as np
+import kagglehub
+from kagglehub import KaggleDatasetAdapter
+from datetime import datetime
+from IPython.display import display, IFrame
+import matplotlib.pyplot as plt
+import seaborn as sns
+from wordcloud import WordCloud
+from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+import nltk
+from nltk import bigrams
+from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
+from nltk.tokenize import word_tokenize
+from nltk.stem import PorterStemmer
+from nltk.stem import WordNetLemmatizer
+import re
+import spacy
+from collections import Counter
+import plotly.io as pio
+pio.renderers.default = "iframe_connected"
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+import plotly.express as px
+import webbrowser
+from sklearn.linear_model import LogisticRegression
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.neural_network import MLPClassifier
+from sklearn.model_selection import GridSearchCV
+from sklearn.naive_bayes import BernoulliNB
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+from tabulate import tabulate
+import random
+random.seed(42)
+```
+
+```{python}
+nltk.download('stopwords')
+nltk.download('punkt')
+nltk.download("wordnet")
+nltk.download("omw-1.4")
+```
+
+```{python}
+nlp = spacy.load("en_core_web_sm")
+ps = PorterStemmer()
+wnl = WordNetLemmatizer()
+```
+
+```{python}
+df = pd.read_csv("data\phishing_data.csv")
+```
+
+### 🔍 Step 2: Explore Dataset Structure
+
+We begin by identifying missing values and understanding the data types for each column.
+
+```{python}
+# Check dimentions of dataset
+print("First 5 records:\n", df.head(), "\n")
+print("Dimensions:\n", df.shape, "\n")
+
+# See data types
+df.info()
+
+# Check for missing values
+print("Missing values:\n", df.isnull().sum(), "\n")
+```
+
+### 🧼 Step 3: Clean Missing and Improperly Formatted Data
+
+Here we remove rows with missing email bodies or labels, examine outliars, and ensure variables are converted to the correct formats. Also, add timestamp as separate variable for our analysis.
+
+```{python}
+# Drop na values in body column
+df = df.dropna(subset=['body', 'label'])
+
+# Check for missing values
+print("Missing values:\n", df.isnull().sum(), "\n")
+
+# Convert parameters to proper types
+df['label'] = pd.to_numeric(df['label'], errors='coerce')
+df['date'] = pd.to_datetime(df['date'], errors='coerce')
+df = df.dropna(subset=['date'])
+df['time'] = df['date'].apply(lambda x: x.time())
+df['hour'] = df['time'].apply(lambda x: x.hour)
+
+# Recheck variable types
+print(df.info())
+```
+
+```{python}
+# Now let's examine it's variables
+print(df['sender'].describe())
+print(df['receiver'].describe())
+print(df['subject'].describe())
+print(df['body'].describe())
+print(df['urls'].describe())
+print(df['date'].describe())
+print(df['time'].describe())
+print(df['hour'].describe())
+print(df['source'].value_counts())
+print(df['label'].value_counts())
+```
+
+```{python}
+# Find row with min date
+display(df[df.date == df.date.dropna().min()])
+
+# Find row with max date
+display(df[df.date == df.date.dropna().max()])
+```
+
+```{python}
+# Remove data outliar
+min_date = df['date'].dropna().min()
+max_date = df['date'].dropna().max()
+
+df = df[(df['date'] != min_date) & (df['date'] != max_date)]
+```
+
+### 📊 Step 4: Summary Statistics
+
+We take a look at the most common senders, receivers, and subject lines to better understand the dataset context.
+
+```{python}
+# Exmaine the most and least common subject lines
+table_positive = df[df['label'] == 1]
+table_negative = df[df['label'] == 0]
+
+print(table_positive['subject'].value_counts().head(10))
+
+print(table_positive['subject'].value_counts().tail(10))
+
+print(table_negative['subject'].value_counts().head(10))
+
+print(table_negative['subject'].value_counts().tail(10))
+```
+
+```{python}
+# Exmaine the most and least common senders
+print(df['sender'].value_counts().head(10))
+
+print(df['sender'].value_counts().tail(10))
+```
+
+```{python}
+# Exmaine the most and least common recievers
+print(df['receiver'].value_counts().head(10))
+
+print(df['receiver'].value_counts().tail(10))
+```
+
+### 📅 Step 5: Visualize Temporal Trends
+
+Let's visualize the distribution of emails across the timeline, and the distribution of the time stamps.
+
+```{python}
+df_plot = df.dropna(subset=['date'])
+
+fig, axs = plt.subplots(2, 1, figsize=(14, 6), sharex=False)
+
+# Plot 1: Histogram of dates
+df['date'].hist(bins=30, ax=axs[0])
+axs[0].set_title('Date Distribution')
+axs[0].set_ylabel('Frequency')
+axs[0].tick_params(axis='x', rotation=45)
+
+# Plot 2: Phishing labels over time
+df_plot.set_index('date')['label'].plot(
+    ax=axs[1], linestyle=' ', marker='o', alpha=0.7
+)
+axs[1].set_title('Phishing Labels Over Time')
+axs[1].set_xlabel('Date')
+axs[1].set_ylabel('Spam (0 or 1)')
+axs[1].tick_params(axis='x', rotation=45)
+
+# Adjust spacing between plots
+plt.tight_layout(pad=3.0)
+plt.show()
+
+```
+
+```{python}
+plt.figure(figsize=(10,6))
+plt.hist(df_plot['hour'], bins=24, range=(0,24), edgecolor='black')
+plt.xlabel('Hour of Day')
+plt.ylabel('Number of Emails')
+plt.title('Distribution of Emails by Hour')
+plt.xticks(range(0,25))
+plt.grid(axis='y', linestyle='--', alpha=0.7)
+```
+
+### 🧩 Step 6: Add Reciever and Sender Emails
+
+We will add receiver and sender emails without the @, as the names can be useful for our analysis.
+
+```{python}
+# Split sender email
+df['sender_user'] = df['sender'].str.split('@').str[0]
+df['sender_domain'] = df['sender'].str.split('@').str[1]
+
+# Split receiver email
+df['receiver_user'] = df['receiver'].str.split('@').str[0]
+df['receiver_domain'] = df['receiver'].str.split('@').str[1]
+
+# Add them as words to the beginning of body
+df['body'] = (
+  df['sender_user'].fillna('') + ' ' +
+  df['sender_domain'].fillna('') + ' ' +
+  df['receiver_user'].fillna('') + ' ' +
+  df['receiver_domain'].fillna('') + ' ' +
+  df['body']
+)
+```
+
+
+
+### ✂️ Step 7: Clean and Tokenize Email Body
+
+We clean the email body by:
+
+  - Converting text to lowercase
+  - Removing punctuation, numbers, and extra white space
+  - Split into a list of individual words (tokens)
+  - Normalize the words by stemming and legitimatizing
+
+```{python}
+# Clean and tokenize emails
+df['body'] = df['body'].str.lower()
+df['body'] = df['body'].apply(lambda x: re.sub(r'[^\w\s]', '', str(x)))
+df['body'] = df['body'].apply(lambda x: re.sub(r'\d+', '', str(x)))
+df['body'] = df['body'].apply(lambda x: re.sub(r'\s+', ' ', str(x)).strip())
+
+# Tokenize body text
+df['body tokens'] = df['body'].str.split()
+
+# Define stop words and unnecessary words
+stop_words = set(stopwords.words('english'))
+unnecessary_words = {'', 'nt', 'cnn', 'cnncom', 'us', 'go', 'like', 'get', 'one', 'use', 'also', 'going', 'lp', 'lllp', 'im', '_', 'submissionid', 'gvcceaschallengecc'}
+
+# Apply cleaning steps
+df['body tokens'] = df['body tokens'].apply(lambda x: [word for word in x if word.lower() not in stop_words])
+df['body tokens'] = df['body tokens'].apply(lambda x: [word for word in x if not word.startswith('http')])
+df['body tokens'] = df['body tokens'].apply(lambda x: [word for word in x if len(word) > 2])
+df['body tokens'] = df['body tokens'].apply(lambda x: [word for word in x if word.lower() not in unnecessary_words])
+df = df.dropna(subset=['body tokens'])
+df['body tokens'] = df['body tokens'].apply(lambda x: [wnl.lemmatize(word) for word in x])
+df['body tokens'] = df['body tokens'].apply(lambda x: [ps.stem(word) for word in x])
+df = df.dropna(subset=['body tokens'])
+
+# Convert tokenized text back to strings for TF-IDF
+df['cleaned body'] = df['body tokens'].apply(lambda x: ' '.join(x))
+```
+
+## Final Output
+
+Each email is now represented as a cleaned, tokenized, and normalized list of words, and ready for classification with models like Naive Bayes, Logistic Regression, or MLP.
+
+```{python}
+print(df['body tokens'].head())
+```
