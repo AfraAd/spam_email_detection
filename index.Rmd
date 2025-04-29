@@ -16,7 +16,7 @@ For this research project, we aim to answer the following question: ***Can we de
 
 To explore this question, we use a dataset compiled from the CEAS, Nazario, Nigerian Fraud, and SpamAssassin corpora. In total, the dataset includes approximately 82,500 emails, with 42,891 labeled as spam and 39,595 labeled as non-spam. Each data point contains the body of the email, subject line, sender, receiver, date sent, embedded URL links, and a label indicating whether it is spam or not.
 
-[Download the dataset](data/phishing_data.csv)
+[Download the Dataset](data/phishing_data.csv)
 
 ## Final Report
 
