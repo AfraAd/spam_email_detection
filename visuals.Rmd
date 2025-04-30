@@ -211,9 +211,10 @@ fig3 = px.bar(
     facet_col="source",
     orientation="h",
     title="Top 10 Frequent Words per Source",
-    height=700,
+    height=620,
+    width=1000,
     category_orders={"label": ["Spam", "Non-Spam"]},
-    facet_col_spacing=0.05
+    facet_col_spacing=0.06
 )
 
 for i in range(1, len(fig3.layout.annotations) + 1):
