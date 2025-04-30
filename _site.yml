@@ -15,3 +15,6 @@ navbar:
   right:
     - icon: fa-github fa-lg
       href: https://github.com/AfraAd/spam_email_detection
+output:
+  html_document:
+    theme: flatly

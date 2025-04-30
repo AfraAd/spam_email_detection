@@ -17,7 +17,7 @@
 <script src="site_libs/header-attrs-2.29/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<link href="site_libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
@@ -1759,7 +1759,7 @@ print(f&quot;Test Set Accuracy: {test_acc_nb:.4f}&quot;)</code></pre>
 cm_nb = confusion_matrix(t_test, y_pred_nb)
 disp_nb = ConfusionMatrixDisplay(confusion_matrix=cm_nb, display_labels=[&quot;Non-Spam&quot;, &quot;Spam&quot;])
 disp_nb.plot(cmap=&quot;Blues&quot;)</code></pre>
-<pre><code>## &lt;sklearn.metrics._plot.confusion_matrix.ConfusionMatrixDisplay object at 0x000001A5B53DF550&gt;</code></pre>
+<pre><code>## &lt;sklearn.metrics._plot.confusion_matrix.ConfusionMatrixDisplay object at 0x0000027B845AA3D0&gt;</code></pre>
 <pre class="python"><code># Calculate FP and FN rates
 TN, FP, FN, TP = cm_nb.ravel()
 
@@ -1783,7 +1783,7 @@ print(f&quot;Test Set Accuracy: {test_acc_lg:.4f}&quot;)</code></pre>
 cm_lg = confusion_matrix(t_test, y_pred_lg)
 disp_lg = ConfusionMatrixDisplay(confusion_matrix=cm_lg, display_labels=[&quot;Non-Spam&quot;, &quot;Spam&quot;])
 disp_lg.plot(cmap=&quot;Blues&quot;)</code></pre>
-<pre><code>## &lt;sklearn.metrics._plot.confusion_matrix.ConfusionMatrixDisplay object at 0x000001A5B69E7A50&gt;</code></pre>
+<pre><code>## &lt;sklearn.metrics._plot.confusion_matrix.ConfusionMatrixDisplay object at 0x0000027B845BA950&gt;</code></pre>
 <pre class="python"><code># Calculate FP and FN rates
 TN, FP, FN, TP = cm_lg.ravel()
 
@@ -1807,7 +1807,7 @@ print(f&quot;Test Set Accuracy: {test_acc_mlp:.4f}&quot;)</code></pre>
 cm_mlp = confusion_matrix(t_test, y_pred_mlp)
 disp_mlp = ConfusionMatrixDisplay(confusion_matrix=cm_mlp, display_labels=[&quot;Non-Spam&quot;, &quot;Spam&quot;])
 disp_mlp.plot(cmap=&quot;Blues&quot;)</code></pre>
-<pre><code>## &lt;sklearn.metrics._plot.confusion_matrix.ConfusionMatrixDisplay object at 0x000001A5B5333190&gt;</code></pre>
+<pre><code>## &lt;sklearn.metrics._plot.confusion_matrix.ConfusionMatrixDisplay object at 0x0000027B845ABE50&gt;</code></pre>
 <pre class="python"><code># Calculate FP and FN rates
 TN, FP, FN, TP = cm_mlp.ravel()
 

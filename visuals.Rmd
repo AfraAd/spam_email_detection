@@ -11,6 +11,8 @@ output:
 
 This section provides interactive visualizations to better understand word distributions, frequencies, and patterns in spam vs non-spam emails. There is also summary table examining the differences in vocabulary for spam and non-spam emails.
 
+Note we have `include=FALSE` for code chunks that create the figures, as they output automatically without calling `IFrame`.
+
 ------------------------------------------------------------------------
 
 ## Figure 1: TF-IDF vs. Word Frequency Scatter Plot
