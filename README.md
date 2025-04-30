@@ -29,7 +29,7 @@ A detailed project report summarizing the methodology, modeling steps, evaluatio
 
 # 🧭 Website Navigation
 
-[View Website](https://afraad.github.io/spam_email_detection/)
+[**View Website**](https://afraad.github.io/spam_email_detection/)
 
 You can explore the full project through the following tabs:
 
